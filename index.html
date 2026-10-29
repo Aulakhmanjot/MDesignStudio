@@ -1,0 +1,425 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design, Naturally | Portfolio</title>
+
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: #e9e3d8;
+    font-family: Georgia, serif;
+    color: #fff;
+  }
+
+  canvas { display: block; }
+
+  #brand {
+    position: fixed;
+    top: 28px;
+    left: 35px;
+    z-index: 5;
+    font-size: 19px;
+    letter-spacing: 3px;
+    pointer-events: none;
+    text-shadow: 0 1px 5px #3338;
+  }
+
+  #instructions {
+    position: fixed;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    background: #273529d9;
+    padding: 13px 22px;
+    border-radius: 30px;
+    font: 13px Arial, sans-serif;
+    text-align: center;
+    line-height: 1.5;
+    max-width: 95%;
+  }
+
+  #hint {
+    position: fixed;
+    top: 85px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    background: #f5f0e6ee;
+    color: #354333;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font: 14px Arial, sans-serif;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .2s;
+  }
+
+  #panel {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    background: #f5f2eb;
+    color: #30382e;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 30px;
+  }
+
+  .panel-content {
+    max-width: 600px;
+  }
+
+  .panel-content h1 {
+    font-size: clamp(40px, 7vw, 75px);
+    font-weight: normal;
+  }
+
+  .panel-content p {
+    line-height: 1.8;
+    color: #667064;
+    font-size: 18px;
+  }
+
+  button {
+    background: #435b45;
+    border: none;
+    color: white;
+    padding: 15px 28px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-family: Georgia, serif;
+    font-size: 15px;
+  }
+
+  button:hover { background: #304332; }
+</style>
+
+</head>
+<body>
+
+<div id="brand">DESIGN, NATURALLY.</div>
+
+<div id="hint">Click to open this door</div>
+
+<div id="instructions">
+  W / S — Walk &nbsp; | &nbsp;
+  A / D — Turn &nbsp; | &nbsp;
+  Drag — Look around &nbsp; | &nbsp;
+  Click a door — Explore
+</div>
+
+<div id="panel">
+  <div class="panel-content">
+    <h1 id="panelTitle"></h1>
+    <p id="panelDescription"></p>
+    <button onclick="closeRoom()">Return to Corridor</button>
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from
+"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xe9e3d8);
+
+const camera = new THREE.PerspectiveCamera(
+  75, innerWidth / innerHeight, 0.1, 100
+);
+
+camera.position.set(0, 1.7, 7.5);
+
+const renderer = new THREE.WebGLRenderer({
+  antialias: true
+});
+
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+document.body.appendChild(renderer.domElement);
+
+// MATERIALS
+const stone = new THREE.MeshStandardMaterial({
+  color: 0xd9cdbb,
+  roughness: 0.9
+});
+
+const floorMat = new THREE.MeshStandardMaterial({
+  color: 0xb8aa95,
+  roughness: 0.85
+});
+
+const wood = new THREE.MeshStandardMaterial({
+  color: 0x76543b,
+  roughness: 0.7
+});
+
+const frameMat = new THREE.MeshStandardMaterial({
+  color: 0xb3a18b
+});
+
+const handleMat = new THREE.MeshStandardMaterial({
+  color: 0xc6aa72,
+  metalness: 0.75,
+  roughness: 0.3
+});
+
+// HELPER FOR ARCHITECTURE
+function box(w, h, d, x, y, z, material) {
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(w, h, d),
+    material
+  );
+
+  mesh.position.set(x, y, z);
+  mesh.receiveShadow = true;
+  mesh.castShadow = true;
+  scene.add(mesh);
+  return mesh;
+}
+
+// CORRIDOR
+box(7, 0.2, 25, 0, -0.1, 0, floorMat);
+box(7, 0.2, 25, 0, 4.5, 0, stone);
+
+box(0.25, 4.5, 25, -3.5, 2.25, 0, stone);
+box(0.25, 4.5, 25, 3.5, 2.25, 0, stone);
+
+box(7, 4.5, 0.25, 0, 2.25, -12.5, stone);
+box(7, 4.5, 0.25, 0, 2.25, 12.5, stone);
+
+// LIGHTING
+scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+
+const sunlight = new THREE.DirectionalLight(
+  0xfff0d6, 2.2
+);
+
+sunlight.position.set(-3, 8, 5);
+sunlight.castShadow = true;
+scene.add(sunlight);
+
+// DOORS
+const doors = [];
+const doorPanels = [];
+
+function createDoor(z, side, title, description) {
+  const x = side * 3.3;
+
+  // Frame
+  box(0.15, 3.3, 1.8, x, 1.65, z, frameMat);
+
+  // Door pivot
+  const pivot = new THREE.Group();
+  pivot.position.set(x - side * 0.13, 0, z - 0.72);
+  scene.add(pivot);
+
+  const door = new THREE.Mesh(
+    new THREE.BoxGeometry(0.12, 3.05, 1.42),
+    wood
+  );
+
+  door.position.set(0, 1.53, 0.71);
+  door.castShadow = true;
+  pivot.add(door);
+
+  const handle = new THREE.Mesh(
+    new THREE.SphereGeometry(0.065, 12, 12),
+    handleMat
+  );
+
+  handle.position.set(
+    -side * 0.10, 1.5, 1.2
+  );
+
+  pivot.add(handle);
+
+  const data = {
+    pivot, door, handle, title, description,
+    side, opened: false, progress: 0
+  };
+
+  doors.push(data);
+  doorPanels.push(door, handle);
+}
+
+createDoor(
+  -7, -1,
+  "Residential Projects",
+  "Explore thoughtful residential spaces inspired by nature, materiality, and everyday living."
+);
+
+createDoor(
+  -2, 1,
+  "Commercial Projects",
+  "Discover commercial environments designed around people, purpose, and experience."
+);
+
+createDoor(
+  3, -1,
+  "Design Philosophy",
+  "A look into my approach to biophilic design, natural materials, and meaningful spaces."
+);
+
+createDoor(
+  8, 1,
+  "About & Contact",
+  "Learn more about my design journey and how we can create something together."
+);
+
+// MOVEMENT
+const keys = {};
+let yaw = 0;
+let dragging = false;
+let lastX = 0;
+let activeDoor = null;
+
+window.addEventListener("keydown", e => {
+  keys[e.key.toLowerCase()] = true;
+
+  if (["arrowup", "arrowdown", "arrowleft", "arrowright"].includes(e.key.toLowerCase())) {
+    e.preventDefault();
+  }
+});
+
+window.addEventListener("keyup", e => {
+  keys[e.key.toLowerCase()] = false;
+});
+
+renderer.domElement.addEventListener("pointerdown", e => {
+  dragging = true;
+  lastX = e.clientX;
+});
+
+window.addEventListener("pointerup", () => {
+  dragging = false;
+});
+
+window.addEventListener("pointermove", e => {
+  if (dragging) {
+    yaw -= (e.clientX - lastX) * 0.004;
+    lastX = e.clientX;
+  }
+});
+
+// CLICK DETECTION
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+renderer.domElement.addEventListener("click", e => {
+  if (Math.abs(e.clientX - lastX) > 8 && dragging) {
+    return;
+  }
+
+  mouse.x = (e.clientX / innerWidth) * 2 - 1;
+  mouse.y = -(e.clientY / innerHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+
+  const hits = raycaster.intersectObjects(doorPanels);
+
+  if (hits.length) {
+    const selected = doors.find(d =>
+      d.door === hits[0].object ||
+      d.handle === hits[0].object
+    );
+
+    if (!selected || activeDoor) return;
+
+    if (camera.position.distanceTo(
+      selected.pivot.position.clone().setY(1.7)
+    ) > 5) return;
+
+    selected.opened = true;
+    activeDoor = selected;
+
+    setTimeout(() => {
+      document.getElementById("panelTitle").textContent =
+        selected.title;
+
+      document.getElementById("panelDescription").textContent =
+        selected.description;
+
+      document.getElementById("panel").style.display = "flex";
+    }, 1100);
+  }
+});
+
+window.closeRoom = function() {
+  document.getElementById("panel").style.display = "none";
+
+  if (activeDoor) {
+    activeDoor.opened = false;
+    activeDoor = null;
+  }
+};
+
+// ANIMATION
+const clock = new THREE.Clock();
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  const dt = Math.min(clock.getDelta(), 0.05);
+
+  if (!activeDoor) {
+    if (keys["a"] || keys["arrowleft"]) yaw += dt * 1.5;
+    if (keys["d"] || keys["arrowright"]) yaw -= dt * 1.5;
+
+    const forward = new THREE.Vector3(
+      -Math.sin(yaw), 0, -Math.cos(yaw)
+    );
+
+    let direction = 0;
+
+    if (keys["w"] || keys["arrowup"]) direction = 1;
+    if (keys["s"] || keys["arrowdown"]) direction = -1;
+
+    camera.position.addScaledVector(
+      forward, direction * dt * 3
+    );
+
+    camera.position.x = THREE.MathUtils.clamp(
+      camera.position.x, -2.9, 2.9
+    );
+
+    camera.position.z = THREE.MathUtils.clamp(
+      camera.position.z, -11.5, 11.5
+    );
+  }
+
+  camera.rotation.set(0, yaw, 0, "YXZ");
+
+  doors.forEach(d => {
+    const target = d.opened ? -d.side * 1.25 : 0;
+
+    d.pivot.rotation.y = THREE.MathUtils.damp(
+      d.pivot.rotation.y, target, 3, dt
+    );
+  });
+
+  renderer.render(scene, camera);
+}
+
+animate();
+
+window.addEventListener("resize", () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+
+</body>
+</html>
