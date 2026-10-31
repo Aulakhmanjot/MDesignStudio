@@ -1,88 +1,457 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Design, Naturally | Sanctuary</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Design, Naturally — Architectural Gallery</title>
 <style>
-*{box-sizing:border-box}body{margin:0;overflow:hidden;background:#e8e1d3;font-family:Georgia,serif;color:#fff}canvas{display:block;touch-action:none}
-#brand{position:fixed;top:25px;left:30px;z-index:5;letter-spacing:3px;font-size:18px;text-shadow:0 2px 6px #27332488;pointer-events:none}
-#instructions{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:5;background:#263d30e8;padding:12px 20px;border-radius:30px;font:13px Arial,sans-serif;text-align:center;line-height:1.5;max-width:96%;white-space:normal}
-#hint{position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:5;background:#f7f2e8;color:#314333;padding:10px 18px;border-radius:25px;font:14px Arial,sans-serif;pointer-events:none;opacity:0;transition:opacity .2s}
-#panel{display:none;position:fixed;inset:0;z-index:10;background:#f5f1e8;color:#303e32;align-items:center;justify-content:center;text-align:center;padding:30px}.panel-content{max-width:600px}.panel-content h1{font-size:clamp(38px,6vw,72px);font-weight:normal}.panel-content p{line-height:1.8;color:#687466;font-size:18px}
-button{background:#435b45;border:0;color:white;padding:15px 28px;border-radius:30px;cursor:pointer;font:15px Georgia,serif}button:hover{background:#304332}
-@media(max-width:650px){#brand{font-size:14px;top:18px;left:16px}#instructions{font-size:11px;bottom:12px;padding:10px 13px}}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#e8e1d4;font-family:Georgia,serif}
+canvas{display:block}
+#brand{position:fixed;top:27px;left:32px;z-index:2;color:#fff;letter-spacing:.21em;font-size:16px;text-shadow:0 2px 10px #3c342c99;pointer-events:none}
+#instructions{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:2;background:#263329e8;color:#fff;border:1px solid #ffffff33;padding:12px 20px;border-radius:30px;font:13px/1.5 Arial,sans-serif;text-align:center;white-space:nowrap;max-width:96vw}
+#hint{position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:2;background:#f9f5ebef;color:#344337;border-radius:20px;padding:9px 16px;font:13px Arial,sans-serif;opacity:0;pointer-events:none;transition:opacity .2s}
+#panel{display:none;position:fixed;inset:0;z-index:5;background:#f5f1e8;color:#334032;align-items:center;justify-content:center;text-align:center;padding:28px}
+#panel>div{max-width:640px}
+#panel h1{font-size:clamp(38px,6vw,70px);font-weight:normal;margin-bottom:15px}
+#panel p{font:18px/1.8 Georgia,serif;color:#687363}
+button{background:#405644;color:white;border:0;padding:15px 25px;border-radius:30px;font:15px Georgia,serif;cursor:pointer}
+button:hover{background:#2d4231}
+#mobile{display:none;position:fixed;bottom:85px;left:0;right:0;z-index:3;justify-content:space-between;padding:0 20px;pointer-events:none}
+#mobile .cluster{display:flex;gap:9px}
+#mobile button{pointer-events:auto;min-width:48px;min-height:48px;padding:10px;background:#29382fc9;font:20px Arial,sans-serif;touch-action:none}
+@media(max-width:750px){
+#brand{font-size:12px;left:16px;top:17px}
+#instructions{bottom:12px;font-size:11px;white-space:normal;padding:9px 14px}
+#mobile{display:flex}
+}
+#residential{display:none;position:fixed;inset:0;z-index:8;background:#eee8dc;color:#344033;overflow-y:auto;padding:65px max(25px,7vw);opacity:0;transition:opacity .7s ease}
+#residential.visible{display:block;opacity:1}
+#residential .eyebrow{font:12px Arial,sans-serif;letter-spacing:.25em;color:#77816c}
+#residential h1{font-size:clamp(42px,7vw,86px);font-weight:normal;margin:15px 0}
+#residential .intro{max-width:680px;font-size:19px;line-height:1.7;color:#6d7467}
+#residential .projects{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:22px;margin:42px 0}
+#residential .project{background:#faf7f0;padding:12px;box-shadow:0 12px 40px #3b332015}
+#residential .project-art{height:260px;position:relative;overflow:hidden;background:linear-gradient(150deg,#d8c7b0 0 47%,#a5a58b 47% 49%,#e5d9c8 49%)}
+#residential .project-art:before{content:'';position:absolute;width:60%;height:65%;left:20%;bottom:0;background:linear-gradient(135deg,#9b7657,#d7b99b);border-radius:90px 90px 0 0;box-shadow:0 0 0 13px #ffffff38}
+#residential .project:nth-child(2) .project-art{background:linear-gradient(120deg,#b5c2ad 0 42%,#e6dbc8 42%)}
+#residential .project:nth-child(3) .project-art{background:linear-gradient(135deg,#c4b6a1 0 50%,#ded9c9 50%)}
+#residential h2{font-weight:normal;font-size:24px;margin:16px 4px 6px}
+#residential .project p{font:13px Arial,sans-serif;color:#747b70;margin:0 4px 12px}
+#residential .back{position:sticky;top:0;float:right;z-index:2}
+#fade{position:fixed;inset:0;z-index:4;background:#eae3d7;opacity:0;pointer-events:none;transition:opacity .55s}
+#fade.on{opacity:1}
+@media(max-width:750px){
+#residential{padding:25px 20px}
+#residential .back{float:none;margin-bottom:20px}
+}
 </style>
 </head>
 <body>
+
 <div id="brand">DESIGN, NATURALLY.</div>
-<div id="hint">Click to enter</div>
-<div id="instructions">W / S — Walk &nbsp; | &nbsp; A / D — Turn &nbsp; | &nbsp; Drag — Look around &nbsp; | &nbsp; Click a door — Explore</div>
-<div id="panel"><div class="panel-content"><h1 id="panelTitle"></h1><p id="panelDescription"></p><button id="backButton">Return to Sanctuary</button></div></div>
+<div id="hint">Move closer and click a door</div>
+<div id="instructions">W / S — Walk &nbsp;·&nbsp; A / D — Turn &nbsp;·&nbsp; Drag — Look &nbsp;·&nbsp; Click a door — Enter</div>
+
+<div id="mobile">
+<div class="cluster">
+<button data-key="a" aria-label="Turn left">↶</button>
+<button data-key="d" aria-label="Turn right">↷</button>
+</div>
+<div class="cluster">
+<button data-key="w" aria-label="Move forward">↑</button>
+<button data-key="s" aria-label="Move backward">↓</button>
+</div>
+</div>
+
+<div id="fade"></div>
+
+<section id="residential" aria-label="Residential project gallery">
+<button class="back" id="residentialBack">← Return to Corridor</button>
+<div class="eyebrow">01 / SELECTED WORK</div>
+<h1>Spaces for living.</h1>
+<p class="intro">An exploration of residential interiors shaped by natural light, honest materials, and a connection to the outdoors.</p>
+
+<div class="projects">
+<article class="project">
+<div class="project-art"></div>
+<h2>Residence 01</h2>
+<p>PROJECT IMAGE PLACEHOLDER</p>
+</article>
+
+<article class="project">
+<div class="project-art"></div>
+<h2>Residence 02</h2>
+<p>PROJECT IMAGE PLACEHOLDER</p>
+</article>
+
+<article class="project">
+<div class="project-art"></div>
+<h2>Residence 03</h2>
+<p>PROJECT IMAGE PLACEHOLDER</p>
+</article>
+</div>
+
+<p class="intro">These are sample project cards. We'll replace them with your actual photographs, renderings, descriptions, and case studies.</p>
+</section>
+
+<div id="panel">
+<div>
+<div style="letter-spacing:.25em;font:12px Arial,sans-serif;color:#8b907e">EXPLORE THE COLLECTION</div>
+<h1 id="panelTitle"></h1>
+<p id="panelDescription"></p>
+<button id="returnButton">Return to Gallery</button>
+</div>
+</div>
+
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
-const scene=new THREE.Scene();scene.background=new THREE.Color(0xdeddd0);scene.fog=new THREE.Fog(0xdeddd0,15,33);
-const camera=new THREE.PerspectiveCamera(72,innerWidth/innerHeight,.1,100);camera.position.set(0,1.7,8.5);
-const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.4;document.body.appendChild(renderer.domElement);
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0xe8e0d2);
+scene.fog=new THREE.Fog(0xe8e0d2,18,42);
+
+const camera=new THREE.PerspectiveCamera(72,innerWidth/innerHeight,.1,90);
+camera.position.set(0,1.68,9.5);
+
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth,innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.65;
+document.body.appendChild(renderer.domElement);
+
 const mat=(color,roughness=1,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
-const limestone=mat(0xd5c9b5),floor=mat(0xb6aa94,.83),grout=mat(0x9d917d),wood=mat(0x79583d,.67),woodLight=mat(0xa27b56),brass=mat(0xc6a56c,.25,.7),soil=mat(0x40372d),potMat=mat(0xa89880),green=[mat(0x426044),mat(0x617b51),mat(0x78916a),mat(0x324e39)];
-function block(w,h,d,x,y,z,m,parent=scene){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.receiveShadow=true;o.castShadow=true;parent.add(o);return o}
-function cylinder(rt,rb,h,x,y,z,m,parent=scene,n=12){const o=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,n),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
-// Long, warm architectural corridor.
-block(7,.2,26,0,-.12,0,floor);block(.25,4.6,26,-3.55,2.3,0,limestone);block(.25,4.6,26,3.55,2.3,0,limestone);
-block(7,.25,26,0,4.7,0,limestone);block(7,4.6,.25,0,2.3,-13,limestone);block(7,4.6,.25,0,2.3,13,limestone);
-// Stone flooring joints.
-for(let z=-12.5;z<13;z+=1.65)block(6.9,.008,.018,0,.002,z,grout);
-for(const x of [-1.75,0,1.75])block(.018,.008,25,x,.004,0,grout);
-// Ceiling beams and luminous skylight panels.
-const glass= new THREE.MeshStandardMaterial({color:0xe4f0d7,emissive:0xb9c9b1,emissiveIntensity:.6,roughness:.2});
-for(const z of [-9,-3,3,9]){block(6.7,.16,.22,0,4.48,z,woodLight);block(2.4,.025,2.6,0,4.54,z+1.5,glass);}
-scene.add(new THREE.HemisphereLight(0xfaf5e8,0x7c826d,2.2));
-const sun=new THREE.DirectionalLight(0xfff1d2,3);sun.position.set(-2,9,-4);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-12;sun.shadow.camera.right=12;sun.shadow.camera.top=16;sun.shadow.camera.bottom=-16;sun.shadow.normalBias=.035;scene.add(sun);
-for(const z of [-9,-3,3,9]){const light=new THREE.PointLight(0xffeac2,12,8);light.position.set(0,4.25,z+1.5);scene.add(light)}
-// Plant clusters in the alcoves: sculpted leaves and clay planters.
-function plant(x,z,scale=1){const group=new THREE.Group();group.position.set(x,0,z);group.scale.setScalar(scale);scene.add(group);
- cylinder(.34,.27,.58,0,.3,0,potMat,group);cylinder(.31,.31,.025,0,.59,0,soil,group);
- const stemMat=mat(0x536448);cylinder(.035,.05,1.35,0,1.24,0,stemMat,group,8);
- for(let i=0;i<13;i++){const a=i*2.39996;const y=.95+(i%5)*.25;const r=.32+(i%4)*.12;const leaf=new THREE.Mesh(new THREE.SphereGeometry(1,8,6),green[i%green.length]);leaf.scale.set(.16,.055,.43);leaf.position.set(Math.sin(a)*r,y,Math.cos(a)*r);leaf.rotation.y=a;leaf.rotation.z=.15*Math.sin(i);leaf.castShadow=true;group.add(leaf);
- const stem=new THREE.Mesh(new THREE.CylinderGeometry(.012,.016,r,5),stemMat);stem.position.set(Math.sin(a)*r*.5,y-.1,Math.cos(a)*r*.5);stem.rotation.z=Math.sin(a)*.9;stem.rotation.x=-Math.cos(a)*.9;group.add(stem)}return group}
-for(const z of [-10.8,-5.4,.3,5.6,10.8]){plant(-2.75,z,.85);plant(2.75,z,.85)}
-// Vines climbing the wall near the far end.
-for(const side of [-1,1])for(let i=0;i<9;i++){const z=-11.9+i*.31;const y=2.3+Math.sin(i*.8)*.45;const leaf=new THREE.Mesh(new THREE.SphereGeometry(1,7,5),green[i%4]);leaf.scale.set(.08,.24,.18);leaf.position.set(side*3.38,y,z);leaf.rotation.z=side*.4;scene.add(leaf)}
-// Doors retain clickable 3D surfaces and opening animation.
-const doors=[],pickables=[];
-function createDoor(z,side,title,description){const x=side*3.34;
- block(.15,3.45,1.95,x,1.73,z,woodLight);
- const pivot=new THREE.Group();pivot.position.set(x-side*.13,0,z-.76);scene.add(pivot);
- const door=block(.13,3.18,1.5,0,1.59,.75,wood,pivot);
- for(let i=0;i<4;i++)block(.145,2.86,.015,0,1.59,.25+i*.33,woodLight,pivot);
- const handle=new THREE.Mesh(new THREE.SphereGeometry(.08,12,12),brass);handle.position.set(-side*.1,1.55,1.27);pivot.add(handle);
- const data={pivot,door,handle,side,title,description,opened:false};doors.push(data);pickables.push(door,handle);
+
+const limestone=mat(0xd8cabb,.91),
+limestoneLight=mat(0xe8ddcc,.95),
+tile=mat(0xc1b5a3,.82),
+grout=mat(0xa99d8b),
+oak=mat(0x956b46,.72),
+oakDark=mat(0x745238,.8),
+bronze=mat(0xb99a65,.35,.7),
+soil=mat(0x594838),
+leaf=mat(0x667c59),
+leaf2=mat(0x82936b),
+bark=mat(0x71604b),
+white=mat(0xfff0d5);
+
+function block(w,h,d,x,y,z,m,parent=scene){
+const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);
+o.position.set(x,y,z);
+o.castShadow=true;
+o.receiveShadow=true;
+parent.add(o);
+return o;
 }
-createDoor(-8,-1,'Residential Projects','Explore residential spaces inspired by nature, materiality, and everyday living.');
-createDoor(-3,1,'Commercial Projects','Discover spaces designed around people, purpose, and experience.');
-createDoor(2,-1,'Design Philosophy','Learn how biophilic design and thoughtful materials shape my work.');
-createDoor(7,1,'About & Contact','Learn about my design journey and get in touch.');
-const keys={},raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();let yaw=0,dragging=false,lastX=0,downX=0,downY=0,activeDoor=null;
-addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase()))e.preventDefault()});
-addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
-renderer.domElement.addEventListener('pointerdown',e=>{dragging=true;lastX=downX=e.clientX;downY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});
-renderer.domElement.addEventListener('pointermove',e=>{if(dragging&&!activeDoor){yaw-=(e.clientX-lastX)*.004;lastX=e.clientX}});
-renderer.domElement.addEventListener('pointerup',e=>{dragging=false;if(Math.hypot(e.clientX-downX,e.clientY-downY)>8||activeDoor)return;
- pointer.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1);raycaster.setFromCamera(pointer,camera);const hits=raycaster.intersectObjects(pickables);
- if(!hits.length)return;const selected=doors.find(d=>d.door===hits[0].object||d.handle===hits[0].object);if(!selected)return;
- if(camera.position.distanceTo(selected.pivot.position.clone().setY(1.7))>5)return;
- selected.opened=true;activeDoor=selected;setTimeout(()=>{document.getElementById('panelTitle').textContent=selected.title;document.getElementById('panelDescription').textContent=selected.description;document.getElementById('panel').style.display='flex'},1100)
+
+// GALLERY STRUCTURE
+block(7.6,.22,30,0,-.12,0,tile);
+block(7.6,.25,30,0,4.55,0,limestoneLight);
+
+for(const side of [-1,1]){
+block(.25,4.55,30,side*3.8,2.275,0,limestone);
+block(.06,.24,30,side*3.62,.12,0,limestoneLight);
+block(.06,.17,30,side*3.62,4.28,0,limestoneLight);
+}
+
+block(7.6,4.55,.3,0,2.275,-15,limestone);
+block(7.6,4.55,.3,0,2.275,15,limestone);
+
+// LARGE STONE FLOOR PANELS
+for(let z=-14;z<15;z+=2.5){
+block(7.2,.008,.022,0,.005,z,grout);
+}
+block(.02,.008,30,0,.005,0,grout);
+
+// ARCHITECTURAL CEILING LIGHT BOXES
+const glowMat=new THREE.MeshBasicMaterial({color:0xfff5de});
+
+for(const z of [-10,-4,2,8]){
+block(3.25,.04,1.3,0,4.39,z,glowMat);
+
+const light=new THREE.PointLight(0xffedcd,21,11,2);
+light.position.set(0,4.15,z);
+scene.add(light);
+
+block(3.4,.08,.07,0,4.36,z-.7,oakDark);
+block(3.4,.08,.07,0,4.36,z+.7,oakDark);
+}
+
+scene.add(new THREE.HemisphereLight(0xfff8e9,0x7c786c,2.2));
+
+const sun=new THREE.DirectionalLight(0xfff1d7,2.3);
+sun.position.set(-3,8,5);
+sun.castShadow=true;
+sun.shadow.mapSize.set(1024,1024);
+sun.shadow.camera.left=-12;
+sun.shadow.camera.right=12;
+sun.shadow.camera.top=16;
+sun.shadow.camera.bottom=-16;
+scene.add(sun);
+
+// DOORS WITH HINGED OPENING
+const doors=[],clickTargets=[];
+
+function addDoor(z,side,title,description){
+const wallX=side*3.63;
+
+block(.13,3.35,1.94,wallX,1.68,z,oakDark);
+block(.15,.12,2.02,wallX,3.37,z,limestoneLight);
+
+for(const dz of [-1.03,1.03]){
+block(.15,3.45,.075,wallX,1.73,z+dz,limestoneLight);
+}
+
+const pivot=new THREE.Group();
+pivot.position.set(wallX-side*.1,0,z-.87);
+scene.add(pivot);
+
+const slab=block(.105,3.13,1.7,0,1.57,.85,oak,pivot);
+block(.12,2.85,.035,-side*.005,1.57,.85,oakDark,pivot);
+
+for(const zz of [.28,1.42]){
+block(.145,2.6,.025,0,1.58,zz,oak,pivot);
+}
+
+const knob=new THREE.Mesh(new THREE.SphereGeometry(.075,16,12),bronze);
+knob.position.set(-side*.11,1.48,1.48);
+pivot.add(knob);
+
+const data={pivot,slab,knob,side,title,description,open:false};
+doors.push(data);
+clickTargets.push(slab,knob);
+}
+
+addDoor(-9,-1,'Residential Projects','A curated collection of residential interiors shaped by light, materiality, and the relationship between people and nature.');
+addDoor(-3,1,'Commercial Projects','Purposeful commercial environments that balance functionality, atmosphere, and meaningful human experiences.');
+addDoor(3,-1,'Design Philosophy','Discover the ideas behind my work: biophilic thinking, natural materials, and spaces that invite us to slow down.');
+addDoor(9,1,'About & Contact','Learn about my creative journey, the values behind my designs, and how we can collaborate.');
+
+// SCULPTURAL INDOOR TREES
+function plant(x,z,s=1){
+const g=new THREE.Group();
+g.position.set(x,0,z);
+g.scale.setScalar(s);
+scene.add(g);
+
+const pot=new THREE.Mesh(new THREE.CylinderGeometry(.33,.25,.68,18),limestoneLight);
+pot.position.y=.34;
+pot.castShadow=true;
+g.add(pot);
+
+const dirt=new THREE.Mesh(new THREE.CylinderGeometry(.3,.3,.025,18),soil);
+dirt.position.y=.69;
+g.add(dirt);
+
+const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.065,.11,1.75,10),bark);
+trunk.position.y=1.53;
+trunk.rotation.z=.08;
+g.add(trunk);
+
+const clusters=[
+[-.4,2.4,.38],
+[.32,2.55,.43],
+[0,2.98,.48],
+[-.22,3.22,.35],
+[.45,3.02,.34]
+];
+
+for(const [cx,cy,r] of clusters){
+const crown=new THREE.Mesh(new THREE.IcosahedronGeometry(r,1),Math.random()>.5?leaf:leaf2);
+crown.position.set(cx,cy,0);
+crown.castShadow=true;
+g.add(crown);
+}
+}
+
+plant(-2.95,-12.1,.78);
+plant(2.9,-11.9,.75);
+plant(-2.95,11.9,.7);
+plant(2.95,11.7,.72);
+
+// WALL ART: ABSTRACT BOTANICAL RELIEFS
+for(const [side,z] of [[1,-12],[-1,-5],[1,5],[-1,12]]){
+const x=side*3.57;
+
+block(.065,1.4,1.25,x,2.25,z,oakDark);
+block(.08,1.26,1.12,x-side*.01,2.25,z,limestoneLight);
+
+for(let i=0;i<3;i++){
+const stem=new THREE.Mesh(new THREE.CapsuleGeometry(.035,.48,4,8),leaf);
+stem.position.set(x-side*.085,2.05+i*.19,z-.27+i*.25);
+stem.rotation.x=.45+i*.3;
+scene.add(stem);
+}
+}
+
+// CONTROLS
+const keys={};
+let yaw=0,drag=false,moved=false,startX=0,lastX=0,active=null,transitionTimer=null,travel=null;
+
+window.addEventListener('keydown',e=>{
+const k=e.key.toLowerCase();
+keys[k]=true;
+if(k.startsWith('arrow'))e.preventDefault();
 });
-document.getElementById('backButton').addEventListener('click',()=>{document.getElementById('panel').style.display='none';if(activeDoor){activeDoor.opened=false;activeDoor=null}});
-const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.05);
- if(!activeDoor){if(keys.a||keys.arrowleft)yaw+=dt*1.5;if(keys.d||keys.arrowright)yaw-=dt*1.5;
- let movement=0;if(keys.w||keys.arrowup)movement=1;if(keys.s||keys.arrowdown)movement=-1;
- camera.position.addScaledVector(new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw)),movement*dt*2.8);
- camera.position.x=THREE.MathUtils.clamp(camera.position.x,-2.5,2.5);camera.position.z=THREE.MathUtils.clamp(camera.position.z,-11.7,11.7)}
- camera.rotation.set(0,yaw,0,'YXZ');for(const d of doors)d.pivot.rotation.y=THREE.MathUtils.damp(d.pivot.rotation.y,d.opened?-d.side*1.2:0,3,dt);
- renderer.render(scene,camera)}animate();
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+
+window.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+
+window.addEventListener('blur',()=>{
+for(const k in keys)keys[k]=false;
+});
+
+renderer.domElement.addEventListener('pointerdown',e=>{
+drag=true;
+moved=false;
+startX=lastX=e.clientX;
+});
+
+window.addEventListener('pointerup',()=>drag=false);
+
+window.addEventListener('pointermove',e=>{
+if(!drag||active)return;
+const dx=e.clientX-lastX;
+if(Math.abs(e.clientX-startX)>7)moved=true;
+yaw-=dx*.004;
+lastX=e.clientX;
+});
+
+for(const b of document.querySelectorAll('[data-key]')){
+const k=b.dataset.key;
+b.addEventListener('pointerdown',e=>{
+e.preventDefault();
+b.setPointerCapture(e.pointerId);
+keys[k]=true;
+});
+for(const event of ['pointerup','pointercancel','lostpointercapture']){
+b.addEventListener(event,()=>keys[k]=false);
+}
+}
+
+const ray=new THREE.Raycaster(),
+pointer=new THREE.Vector2(),
+hint=document.getElementById('hint'),
+panel=document.getElementById('panel');
+
+renderer.domElement.addEventListener('click',e=>{
+if(moved||active)return;
+
+pointer.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1);
+ray.setFromCamera(pointer,camera);
+
+const hits=ray.intersectObjects(clickTargets);
+if(!hits.length)return;
+
+const door=doors.find(d=>d.slab===hits[0].object||d.knob===hits[0].object);
+if(!door)return;
+
+const dist=camera.position.distanceTo(door.pivot.position.clone().setY(1.7));
+
+if(dist>5){
+hint.textContent='Walk closer to open this door';
+hint.style.opacity='1';
+setTimeout(()=>hint.style.opacity='0',1700);
+return;
+}
+
+active=door;
+door.open=true;
+
+if(door.title==='Residential Projects'){
+const start=camera.position.clone();
+const end=new THREE.Vector3(door.side*2.2,1.68,door.pivot.position.z);
+
+travel={start,end,elapsed:0,duration:1.25};
+
+transitionTimer=setTimeout(()=>{
+document.getElementById('fade').classList.add('on');
+
+setTimeout(()=>{
+document.getElementById('residential').classList.add('visible');
+document.getElementById('fade').classList.remove('on');
+},550);
+},1150);
+
+}else{
+transitionTimer=setTimeout(()=>{
+document.getElementById('panelTitle').textContent=door.title;
+document.getElementById('panelDescription').textContent=door.description;
+panel.style.display='flex';
+},1050);
+}
+});
+
+document.getElementById('residentialBack').addEventListener('click',()=>{
+clearTimeout(transitionTimer);
+document.getElementById('residential').classList.remove('visible');
+travel=null;
+camera.position.set(0,1.68,9.5);
+yaw=0;
+if(active)active.open=false;
+active=null;
+});
+
+document.getElementById('returnButton').addEventListener('click',()=>{
+clearTimeout(transitionTimer);
+panel.style.display='none';
+if(active)active.open=false;
+active=null;
+});
+
+const clock=new THREE.Clock();
+
+function frame(){
+requestAnimationFrame(frame);
+const dt=Math.min(clock.getDelta(),.05);
+
+if(!active){
+if(keys.a||keys.arrowleft)yaw+=dt*1.45;
+if(keys.d||keys.arrowright)yaw-=dt*1.45;
+
+const f=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));
+let speed=0;
+
+if(keys.w||keys.arrowup)speed+=1;
+if(keys.s||keys.arrowdown)speed-=1;
+
+camera.position.addScaledVector(f,speed*dt*2.8);
+camera.position.x=THREE.MathUtils.clamp(camera.position.x,-2.35,2.35);
+camera.position.z=THREE.MathUtils.clamp(camera.position.z,-13.8,13.8);
+}
+
+if(travel){
+travel.elapsed+=dt;
+const t=Math.min(1,travel.elapsed/travel.duration);
+const smooth=t*t*(3-2*t);
+camera.position.lerpVectors(travel.start,travel.end,smooth);
+}
+
+camera.rotation.set(0,yaw,0,'YXZ');
+
+for(const d of doors){
+d.pivot.rotation.y=THREE.MathUtils.damp(
+d.pivot.rotation.y,
+d.open?-d.side*1.25:0,
+3.2,
+dt
+);
+}
+
+renderer.render(scene,camera);
+}
+
+frame();
+
+window.addEventListener('resize',()=>{
+camera.aspect=innerWidth/innerHeight;
+camera.updateProjectionMatrix();
+renderer.setSize(innerWidth,innerHeight);
+});
 </script>
 </body>
 </html>
